@@ -1,6 +1,6 @@
 'use client';
-import { Button, TextField } from '@radix-ui/themes';
-import React from 'react';
+import { Button, Callout, TextField } from '@radix-ui/themes';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import 'easymde/dist/easymde.min.css';
 import dynamic from 'next/dynamic';
@@ -17,28 +17,39 @@ const NewIssuePage = () => {
   const SimpleMdeEditor = dynamic(() => import('react-simplemde-editor'), {
     ssr: false,
   });
-
+  const [error, setError] = useState('');
   return (
-    <form
-      className="max-w-xl space-y-3"
-      onSubmit={handleSubmit(async (data) => {
-        await axios.post('/api/issues', data);
-        router.push('/issues');
-      })}
-    >
-      <TextField.Root>
-        <TextField.Input placeholder="Title" {...register('title')} />
-      </TextField.Root>
-      <Controller
-        name="description"
-        control={control}
-        render={({ field }) => (
-          <SimpleMdeEditor placeholder="description" {...field} />
-        )}
-      />
+    <div className="max-w-xl">
+      {error && (
+        <Callout.Root color="red" className="mb-5">
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
+      <form
+        className="space-y-3"
+        onSubmit={handleSubmit(async (data) => {
+          try {
+            await axios.post('/api/issues', data);
+            router.push('/issues');
+          } catch (err) {
+            setError('An unexpected error occurred.');
+          }
+        })}
+      >
+        <TextField.Root>
+          <TextField.Input placeholder="Title" {...register('title')} />
+        </TextField.Root>
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => (
+            <SimpleMdeEditor placeholder="description" {...field} />
+          )}
+        />
 
-      <Button>Submit New Issue</Button>
-    </form>
+        <Button>Submit New Issue</Button>
+      </form>
+    </div>
   );
 };
 
