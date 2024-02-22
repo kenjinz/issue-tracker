@@ -9,11 +9,13 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createIssueSchema } from '@/app/validationSchema';
 import { z } from 'zod';
-import SimpleEditor from 'react-simplemde-editor';
 import ErrorMessage from '@/app/components/ErrorMessage';
 import Spinner from '@/app/components/Spinner';
 type IssueForm = z.infer<typeof createIssueSchema>;
 
+const SimpleEditor = dynamic(() => import('react-simplemde-editor'), {
+  ssr: false,
+});
 const NewIssuePage = () => {
   const {
     register,
@@ -24,9 +26,6 @@ const NewIssuePage = () => {
     resolver: zodResolver(createIssueSchema),
   });
   const router = useRouter();
-  // const SimpleMdeEditor = dynamic(() => import('react-simplemde-editor'), {
-  //   ssr: false,
-  // });
   const [error, setError] = useState('');
   const [isSubmitting, setSubmitting] = useState(false);
 
